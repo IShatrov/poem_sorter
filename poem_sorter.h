@@ -6,29 +6,44 @@
 #include <assert.h>
 #include <ctype.h>
 
-const int MAX_LINE_LEN = 101;
-const int DEFAULT_N_LINES = 100;
-
-//! @param[in] lines Pointer to array of pointers to strings.
-//! @param[in] n_lines Pointer to the size of initial array.
 //! @param[in] stream File to read from.
-//! @brief Reads strings from stream and stores them in lines. Keeps newline character. Resulting strings a null-terminated. Can`t read more than MAX_LINE_LEN symbols. Expands lines to fit all strings if required.
-void read_poem(char ***lines, int *n_lines, FILE *stream);
+//! @return Returns pointer to char array.
+//! @brief Reads text from stream and stores it as char array. First character in array is \0.
+char* read_poem(FILE *stream);
+
+//! @param[in] chr Character to count.
+//! @param[in] str Pointer to string to count at.
+//! @return Returns amount of occurrences of chr in str.
+size_t count_chr_in_str(char chr, const char *str);
+
+//! @param[in] text Text to split.
+//! @param[in] dest Pointer to array of pointers to save pointers to lines.
+//! @return Returns amount of poem lines in text.
+//! @brief Replaces \n with \0 in text and saves pointers to beginnings if poem lines in dest. The last pointer points to NULL.
+size_t split_poem(char *text, char ***dest);
 
 //! @param[in] lhs Pointer to string.
 //! @param[in] rhs Pointer to string.
 //! @return Returns zero if lhs == rhs, a positive integer if rhs < lhs and a negative integer if rhs > lhs.
-//! @brief Compares strings lexicographically. Case insensitive.
-int ins_strcmp(const char *lhs, const char *rhs);
-
-//! @param[in] poem Array of pointers to strings.
-//! @param[in] n_lines Amount of strings in the array.
-//! @brief Sorts strings from poem lexicographically.
-void sort_poem(char **poem, int n_lines);
+//! @brief Compares strings lexicographically. Case insensitive. Ignores punctuation.
+int line_cmp(const void *line_l, const void *line_r);
 
 //! @param[in] poem Array of pointers to strings.
 //! @param[in] stream File to print strings to.
 //! @brief Prints strings from poem to stream.
-void fprint_poem(char **poem, int n_lines, FILE *stream);
+void fprint_poem(const char **poem, FILE *stream);
+
+//! @param[in] stream File to examine.
+//! @return Returns amount of characters in stream.
+//! @brief Gets amount of characters in stream.
+size_t get_file_size(FILE *stream);
+
+//! @param[in] lines Pointer to array of pointers to poem lines.
+//! @param[in] n_lines Amount of lines in lines.
+//! @return Returns pointer to copy of lines.
+//! @brief Copies lines.
+char** copy_poem(char **lines, size_t n_lines);
+
+void free_lines(char **lines, size_t n_lines);
 
 #endif

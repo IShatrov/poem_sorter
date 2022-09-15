@@ -3,7 +3,7 @@
 int main(int argc, const char *argv[])
 {
     const char *poem_filename = "poem.txt";
-    const char *destination_filename = "des.txt";
+    const char *destination_filename = "dest.txt";
 
     if (argc > 1) poem_filename = argv[1];
     if (argc > 2) destination_filename = argv[2];
@@ -12,22 +12,26 @@ int main(int argc, const char *argv[])
     poem = fopen(poem_filename, "r");
     assert(poem != NULL && "Poem file not found");
 
-    FILE *des = NULL;
-    des = fopen(destination_filename, "w");
-    assert(des != NULL && "Destination file creation error");
+    char *text = read_poem(poem);
 
-    char **lines = (char**) malloc(DEFAULT_N_LINES * sizeof(char*));
-    int n_lines = DEFAULT_N_LINES;
+    char **lines = NULL;
+    size_t n_lines = split_poem(text, &lines);
 
-    read_poem(&lines, &n_lines, poem);
+    char **sorted_lines = copy_poem(lines, n_lines);
+    qsort(sorted_lines, n_lines - 1, sizeof(char*), &line_cmp);
 
-    sort_poem(lines, n_lines);
+    FILE *dest = NULL;
+    dest = fopen(destination_filename, "w");
+    assert(dest != NULL && "Destination file creation error");
 
-    fprint_poem(lines, n_lines, des);
+    fprint_poem((const char**) sorted_lines, dest);
+    putc('\n', dest);
+    fprint_poem((const char**) lines, dest);
 
     fclose(poem);
-    fclose(des);
-    for (int i = 0; i < n_lines; ++i) free(lines[i]);
+    free(text);
+    fclose(dest);
+    free_lines(lines, n_lines);
     free(lines);
 
     return 0;
