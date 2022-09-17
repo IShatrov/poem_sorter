@@ -6,6 +6,13 @@
 #include <assert.h>
 #include <ctype.h>
 
+#include <string.h>
+
+struct line_info {
+    char *line;
+    int len;
+};
+
 //! @param[in] stream File to read from.
 //! @return Returns pointer to char array.
 //! @brief Reads text from stream and stores it as char array. First character in array is \0.
@@ -20,13 +27,13 @@ size_t count_chr_in_str(char chr, const char *str);
 //! @param[in] dest Pointer to array of pointers to save pointers to lines.
 //! @return Returns amount of poem lines in text.
 //! @brief Replaces \n with \0 in text and saves pointers to beginnings if poem lines in dest. The last pointer points to NULL.
-size_t split_poem(char *text, char ***dest);
+size_t split_poem(char *text, struct line_info ***dest, struct line_info *struct_array);
 
 //! @param[in] lhs Pointer to string.
 //! @param[in] rhs Pointer to string.
 //! @return Returns zero if lhs == rhs, a positive integer if rhs < lhs and a negative integer if rhs > lhs.
 //! @brief Compares strings lexicographically. Case insensitive. Ignores punctuation.
-int line_cmp(const void *line_l, const void *line_r);
+int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr);
 
 //! @param[in] poem Array of pointers to strings.
 //! @param[in] stream File to print strings to.
@@ -42,8 +49,11 @@ size_t get_file_size(FILE *stream);
 //! @param[in] n_lines Amount of lines in lines.
 //! @return Returns pointer to copy of lines.
 //! @brief Copies lines.
-char** copy_poem(char **lines, size_t n_lines);
+struct line_info** copy_struct_array(struct line_info **lines, size_t n_lines);
 
+//! @param[in] lines Array to free.
+//! @param[in] n_lines Number of elements in lines.
+//! @brief Frees contents of array of pointers.
 void free_lines(char **lines, size_t n_lines);
 
 #endif

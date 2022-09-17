@@ -28,24 +28,36 @@ size_t count_chr_in_str(char chr, const char *str)
     return ans;
 }
 
-size_t split_poem(char *text, char ***dest)
+size_t split_poem(char *text, struct line_info ***dest, struct line_info *struct_array)
 {
     assert(dest != NULL);
     assert(text != NULL);
 
     size_t n_lines = 2 + count_chr_in_str('\n', text + 1); //last line does not end with \n, and one more line for NULL
 
-    *dest = (char**) realloc(*dest, n_lines * sizeof(char*));
+    *dest = (line_info**) realloc(*dest, n_lines * sizeof(struct line_info*));
+    struct_array = (struct line_info*) realloc(struct_array, n_lines * sizeof(struct line_info));
+    //printf("%d\n", sizeof(*struct_array));
+    //*dest->line = text + 1;
+    struct_array[0].line = text + 1;
 
-    **dest = text + 1;
+    //printf("%s\n", struct_array[0].line);
+
+    **dest = &(struct_array[0]);
 
     size_t lines_found = 1, chr = 1; //have to start from 1 because text starts from \0
+    const char *prev_line = text;
 
     while (*(text + chr) != '\0')
     {
         if (*(text + chr) == '\n')
         {
-            *(*dest + lines_found) = text + chr + 1;
+            struct_array[lines_found].line = text + chr + 1;
+            struct_array[lines_found - 1].len = (text + chr) - prev_line - 1;
+            prev_line = text + chr;
+            /*(*dest + lines_found)->line = text + chr + 1;*/
+
+            *(*dest + lines_found) = &(struct_array[lines_found]);
 
             *(text + chr) = '\0';
 
@@ -55,18 +67,26 @@ size_t split_poem(char *text, char ***dest)
         ++chr;
     }
 
-    *(*dest + n_lines - 1) = NULL;
+    /*(*dest + n_lines - 1)->line = NULL;*/
+    struct_array[lines_found - 1].len = (text + chr) - prev_line - 1;
+
+    struct_array[n_lines - 1].line = NULL;
+    struct_array[n_lines - 1].len = -1;
+    *(*dest + n_lines - 1) = &(struct_array[n_lines - 1]);
 
     return n_lines;
 }
 
-int line_cmp(const void *line_l_ptr, const void *line_r_ptr)
+int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr)
 {
-    assert(line_l_ptr != NULL);
-    assert(line_r_ptr != NULL);
+    assert(struct_l_ptr != NULL);
+    assert(struct_r_ptr != NULL);
 
-    const char *line_l = *((const char**) line_l_ptr);
-    const char *line_r = *((const char**) line_r_ptr);
+    const char *line_l = (*((const struct line_info**) struct_l_ptr))->line;
+    const char *line_r = (*((const struct line_info**) struct_r_ptr))->line;
+
+    printf("%s\n%s\n", line_l, line_r);
+   // const char *line_r = *((const char**) struct_r_ptr);
 
     while(*line_l != '\0' && *line_r != '\0' && tolower(*line_l) == tolower(*line_r) ||
      (ispunct(*line_l) || isspace(*line_l)) || (ispunct(*line_r) || isspace(*line_r)))
@@ -88,6 +108,7 @@ int line_cmp(const void *line_l_ptr, const void *line_r_ptr)
         ++line_r;
     }
 
+    printf("%d\n\n", tolower(*line_l) - tolower(*line_r));
     return tolower(*line_l) - tolower(*line_r);
 }
 
@@ -120,12 +141,13 @@ size_t get_file_size(FILE *stream)
     return ans;
 }
 
-char** copy_poem(char **lines, size_t n_lines)
+struct line_info** copy_struct_array(struct line_info **lines, size_t n_lines)
 {
-    char **ans = (char**) calloc(n_lines, sizeof(char*));
+    struct line_info **ans = (struct line_info**) calloc(n_lines, sizeof(struct line_info*));
 
     for (size_t lines_copied = 0; lines_copied < n_lines; ++lines_copied)
     {
+        //printf("%s\n", (*lines + lines_copied)->line);
         *(ans + lines_copied) = *(lines + lines_copied);
     }
 
