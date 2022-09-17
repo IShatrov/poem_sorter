@@ -39,7 +39,7 @@ int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr);
 //! @param[in] lhs Pointer to line_info struct.
 //! @param[in] rhs Pointer to line_info struct.
 //! @return Returns zero if lhs == rhs, a positive integer if rhs < lhs and a negative integer if rhs > lhs.
-//! @brief Compares strings stored in line_info structs lexicographically starting from the beginnings of the  strings. Case insensitive. Ignores punctuation.
+//! @brief Compares strings stored in line_info structs lexicographically starting from the ends of the strings. Case insensitive. Ignores punctuation.
 int line_cmp_from_end(const void *struct_l_ptr, const void *struct_r_ptr);
 
 //! @param[in] poem Array of pointers to line_info structs.
