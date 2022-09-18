@@ -16,6 +16,8 @@ char* read_poem(FILE *stream)
 
 size_t count_chr_in_str(char chr, const char *str)
 {
+    assert(str != NULL);
+
     size_t ans = 0, chars_checked = 0;
 
     while (*(str + chars_checked) != '\0')
@@ -137,6 +139,9 @@ int line_cmp_from_end(const void *struct_l_ptr, const void *struct_r_ptr)
 
 void fprint_poem(const struct line_info **poem, FILE *stream)
 {
+    assert(poem != NULL);
+    assert(stream != NULL);
+
     size_t lines_printed = 0;
 
     while((*(poem + lines_printed))->line != NULL)
@@ -166,6 +171,9 @@ size_t get_file_size(FILE *stream)
 
 struct line_info** copy_struct_array(struct line_info **lines, size_t n_lines)
 {
+    assert(lines != NULL);
+    assert(n_lines != 0);
+
     struct line_info **ans = (struct line_info**) calloc(n_lines, sizeof(struct line_info*));
 
     for (size_t lines_copied = 0; lines_copied < n_lines; ++lines_copied)
@@ -178,6 +186,10 @@ struct line_info** copy_struct_array(struct line_info **lines, size_t n_lines)
 
 void byte_swap(void *a, void *b, size_t size)
 {
+    assert(a != NULL);
+    assert(b != NULL);
+    assert(size != NULL);
+
     char temp = 0;
 
     for(size_t i = 0; i < size; ++i)
@@ -192,6 +204,11 @@ void byte_swap(void *a, void *b, size_t size)
 
 void my_sort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, const void *b))
 {
+    assert(ptr != NULL);
+    assert(count != 0);
+    assert(size != 0);
+    assert(cmp != NULL);
+
     char not_sorted = 1;
 
     while(not_sorted)
