@@ -58,4 +58,18 @@ size_t get_file_size(FILE *stream);
 //! @brief Copies lines.
 struct line_info** copy_struct_array(struct line_info **lines, size_t n_lines);
 
+
+//! @param[in] a Pointer to first item.
+//! @param[in] b Pointer to second item.
+//! @param[in] size Size of objects pointed to by a and b.
+//! @brief Swaps objects pointed to a and b by changing them byte-by-byte.
+void byte_swap(void *a, void *b, size_t size);
+
+//! @param[in] ptr Pointer to array to sort.
+//! @param[in] count Amount of elements in the array.
+//! @param[in] size Size of each element in the array.
+//! @param[in] cmp Comparator.
+//! @brief Sorts array inefficiently.
+void my_sort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, const void *b));
+
 #endif

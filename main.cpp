@@ -19,7 +19,7 @@ int main(int argc, const char *argv[])
 
     struct line_info **sorted_lines = copy_struct_array(lines, n_lines);
 
-    qsort(sorted_lines, n_lines - 1, sizeof(struct line_info*), &line_cmp);
+    my_sort(sorted_lines, n_lines - 1, sizeof(struct line_info*), &line_cmp);
 
     FILE *dest = NULL;
     dest = fopen(destination_filename, "w");
@@ -28,7 +28,7 @@ int main(int argc, const char *argv[])
     fprint_poem((const struct line_info**) sorted_lines, dest);
     putc('\n', dest);
 
-    qsort(sorted_lines, n_lines - 1, sizeof(struct line_info*), &line_cmp_from_end);
+    my_sort(sorted_lines, n_lines - 1, sizeof(struct line_info*), &line_cmp_from_end);
 
     fprint_poem((const struct line_info**) sorted_lines, dest);
     putc('\n', dest);

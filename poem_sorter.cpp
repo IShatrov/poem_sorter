@@ -175,3 +175,39 @@ struct line_info** copy_struct_array(struct line_info **lines, size_t n_lines)
 
     return ans;
 }
+
+void byte_swap(void *a, void *b, size_t size)
+{
+    char temp = 0;
+
+    for(size_t i = 0; i < size; ++i)
+    {
+        temp = *((char*)a + i);
+        *((char*)a + i) = *((char*)b + i);
+        *((char*)b + i) = temp;
+    }
+
+    return;
+}
+
+void my_sort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, const void *b))
+{
+    char not_sorted = 1;
+
+    while(not_sorted)
+    {
+        not_sorted = 0;
+
+        for(int i = 0; i < count - 1; ++i)
+        {
+            if((*cmp)(ptr + i*size, ptr + (i + 1)*size) > 0)
+            {
+                not_sorted = 1;
+
+                byte_swap(ptr + i*size, ptr + (i + 1)*size, size);
+            }
+        }
+    }
+
+    return;
+}
