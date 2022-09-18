@@ -188,7 +188,7 @@ void byte_swap(void *a, void *b, size_t size)
 {
     assert(a != NULL);
     assert(b != NULL);
-    assert(size != NULL);
+    assert(size != 0);
 
     char temp = 0;
 
@@ -202,29 +202,40 @@ void byte_swap(void *a, void *b, size_t size)
     return;
 }
 
-void my_sort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, const void *b))
+void my_qsort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, const void *b))
 {
     assert(ptr != NULL);
-    assert(count != 0);
-    assert(size != 0);
     assert(cmp != NULL);
 
-    char not_sorted = 1;
+    void *low = ptr, *high = ptr + (count - 1)*size;
 
-    while(not_sorted)
+    if(low < high)
     {
-        not_sorted = 0;
+        void *pivot = high;
 
-        for(int i = 0; i < count - 1; ++i)
+        void *l = low - 1*size;
+
+        for(void *r = low; r < high; r += 1*size)
         {
-            if((*cmp)(ptr + i*size, ptr + (i + 1)*size) > 0)
+            if(cmp(r, pivot) <= 0)
             {
-                not_sorted = 1;
+                l += 1*size;
 
-                byte_swap(ptr + i*size, ptr + (i + 1)*size, size);
+                byte_swap(l, r, size);
             }
         }
-    }
 
-    return;
+        l += 1*size;
+
+        byte_swap(l, high, size);
+
+        void *point = l;
+
+
+        if (low < high && count > 1)
+        {
+            my_qsort(ptr, ((char*)point - (char*)low)/size, size, cmp);
+            my_qsort(ptr + count*size - ((char*)high - (char*)point), ((char*)high - (char*)point)/size, size, cmp);
+        }
+    }
 }

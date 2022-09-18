@@ -69,7 +69,7 @@ void byte_swap(void *a, void *b, size_t size);
 //! @param[in] count Amount of elements in the array.
 //! @param[in] size Size of each element in the array.
 //! @param[in] cmp Comparator.
-//! @brief Sorts array inefficiently.
-void my_sort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, const void *b));
+//! @brief Sorts array with a simple version of QuickSort.
+void my_qsort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, const void *b));
 
 #endif
