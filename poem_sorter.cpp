@@ -5,13 +5,14 @@ char* read_poem(FILE *stream)
     assert(stream != NULL);
 
     size_t len = get_file_size(stream);
+    assert(len != 0);
 
     char* text = (char*) calloc(len + 2, sizeof(char));
     assert(text != NULL);
 
     //first character in text will be \0, useful for second comparator
     fread(text + 1, sizeof(char), len, stream);
-    ferror(stream);
+    assert(!ferror(stream));
 
     return text;
 }
@@ -40,6 +41,7 @@ size_t split_poem(char *text, struct line_info **dest)
     size_t n_lines = 2 + count_chr_in_str('\n', text + 1); //last line does not end with \n, and one more line for NULL
 
     *dest = (struct line_info*) realloc(*dest, n_lines * sizeof(struct line_info));
+    assert(*dest != NULL);
 
     (*dest)[0].line = text + 1;
 
@@ -143,7 +145,10 @@ void fprint_poem(const struct line_info *poem, FILE *stream)
     while((*(poem + lines_printed)).line != NULL)
     {
         fputs((*(poem + lines_printed)).line, stream);
+        assert(!ferror(stream));
+
         putc('\n', stream);
+        assert(!ferror(stream));
 
         ++lines_printed;
     }
@@ -159,6 +164,7 @@ size_t get_file_size(FILE *stream)
 
     assert(!fseek(stream, 0, SEEK_END));   //fseek returns zero upon success and non-zero otherwise
     ans = ftell(stream);
+    assert(!ferror(stream));
 
     assert(!fseek(stream, 0, SEEK_SET));
 
