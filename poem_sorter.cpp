@@ -30,7 +30,7 @@ size_t count_chr_in_str(char chr, const char *str)
         ++chars_checked;                                                //1. one io func
     }                                                                   //2. smart byte swap
                                                                         //3. check for empty lines
-    return ans;                                                         //4. more checks for nulls&errors if required
+    return ans;
 }
 
 size_t split_poem(char *text, struct line_info **dest)
@@ -188,19 +188,48 @@ struct line_info* copy_struct_array(struct line_info *lines, size_t n_lines)
     return ans;
 }
 
-void byte_swap(void *a, void *b, size_t size) // smart byte swap
+void byte_swap(void *a, void *b, size_t size)
 {
     assert(a != NULL);
     assert(b != NULL);
     assert(size != 0);
 
-    char temp = 0;
+    size_t n_doubles = 0, n_ints = 0, n_bytes = 0;
 
-    for(size_t i = 0; i < size; ++i)
+    while(size >= sizeof(double))
     {
-        temp = *((char*)a + i);
-        *((char*)a + i) = *((char*)b + i);
-        *((char*)b + i) = temp;
+        double temp = *((double*)a);
+        *((double*)a) = *((double*)b);
+        *((double*)b) = temp;
+
+        a = ((double*)a) + 1;
+        b = ((double*)b) + 1;
+
+        size -= sizeof(double);
+    }
+
+    while(size >= sizeof(int))
+    {
+        int temp = *((int*)a);
+        *((int*)a) = *((int*)b);
+        *((int*)b) = temp;
+
+        a = ((int*)a) + 1;
+        b = ((int*)b) + 1;
+
+        size -= sizeof(int);
+    }
+
+    while(size > 0)
+    {
+        char temp = *((char*)a);
+        *((char*)a) = *((char*)b);
+        *((char*)b) = temp;
+
+        a = ((char*)a) + 1;
+        b = ((char*)b) + 1;
+
+        size -= 1;
     }
 
     return;
