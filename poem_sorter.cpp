@@ -7,9 +7,11 @@ char* read_poem(FILE *stream)
     size_t len = get_file_size(stream);
 
     char* text = (char*) calloc(len + 2, sizeof(char));
+    assert(text != NULL);
 
-    //first character in text will be \0, can be useful for another task
-    fread(text + 1*sizeof(char), sizeof(char), len, stream);
+    //first character in text will be \0, useful for second comparator
+    fread(text + 1, sizeof(char), len, stream);
+    ferror(stream);
 
     return text;
 }
@@ -23,26 +25,23 @@ size_t count_chr_in_str(char chr, const char *str)
     while (*(str + chars_checked) != '\0')
     {
         if (*(str + chars_checked) == chr) ++ans;
-
-        ++chars_checked;
-    }
-
-    return ans;
+                                                                        //to do:
+        ++chars_checked;                                                //1. one io func
+    }                                                                   //2. smart byte swap
+                                                                        //3. check for empty lines
+    return ans;                                                         //4. more checks for nulls&errors if required
 }
 
-size_t split_poem(char *text, struct line_info ***dest, struct line_info *struct_array)
+size_t split_poem(char *text, struct line_info **dest)
 {
     assert(dest != NULL);
     assert(text != NULL);
 
     size_t n_lines = 2 + count_chr_in_str('\n', text + 1); //last line does not end with \n, and one more line for NULL
 
-    *dest = (line_info**) realloc(*dest, n_lines * sizeof(struct line_info*));
-    struct_array = (struct line_info*) realloc(struct_array, n_lines * sizeof(struct line_info));
+    *dest = (struct line_info*) realloc(*dest, n_lines * sizeof(struct line_info));
 
-    struct_array[0].line = text + 1;
-
-    **dest = &(struct_array[0]);
+    (*dest)[0].line = text + 1;
 
     size_t lines_found = 1, chr = 1; //have to start from 1 because text starts from \0
     const char *prev_line = text;
@@ -51,11 +50,9 @@ size_t split_poem(char *text, struct line_info ***dest, struct line_info *struct
     {
         if (*(text + chr) == '\n')
         {
-            struct_array[lines_found].line = text + chr + 1;
-            struct_array[lines_found - 1].len = (text + chr) - prev_line - 1;
+            (*dest)[lines_found].line = text + chr + 1;
+            (*dest)[lines_found - 1].len = (text + chr) - prev_line - 1;
             prev_line = text + chr;
-
-            *(*dest + lines_found) = &(struct_array[lines_found]);
 
             *(text + chr) = '\0';
 
@@ -65,11 +62,10 @@ size_t split_poem(char *text, struct line_info ***dest, struct line_info *struct
         ++chr;
     }
 
-    struct_array[lines_found - 1].len = (text + chr) - prev_line - 1;
+    (*dest)[lines_found - 1].len = (text + chr) - prev_line - 1;
 
-    struct_array[n_lines - 1].line = NULL;
-    struct_array[n_lines - 1].len = -1;
-    *(*dest + n_lines - 1) = &(struct_array[n_lines - 1]);
+    (*dest)[n_lines - 1].line = NULL;
+    (*dest)[n_lines - 1].len = -1;
 
     return n_lines;
 }
@@ -79,8 +75,8 @@ int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr)
     assert(struct_l_ptr != NULL);
     assert(struct_r_ptr != NULL);
 
-    const char *line_l = (*((const struct line_info**) struct_l_ptr))->line;
-    const char *line_r = (*((const struct line_info**) struct_r_ptr))->line;
+    const char *line_l = (*((const struct line_info*) struct_l_ptr)).line;
+    const char *line_r = (*((const struct line_info*) struct_r_ptr)).line;
 
     while(*line_l != '\0' && *line_r != '\0' && tolower(*line_l) == tolower(*line_r) ||
      (ispunct(*line_l) || isspace(*line_l)) || (ispunct(*line_r) || isspace(*line_r)))
@@ -110,8 +106,8 @@ int line_cmp_from_end(const void *struct_l_ptr, const void *struct_r_ptr)
     assert(struct_l_ptr != NULL);
     assert(struct_r_ptr != NULL);
 
-    const char *line_l = (*((const struct line_info**) struct_l_ptr))->line + (*((const struct line_info**) struct_l_ptr))->len - 1;
-    const char *line_r = (*((const struct line_info**) struct_r_ptr))->line + (*((const struct line_info**) struct_r_ptr))->len - 1;
+    const char *line_l = (*((const struct line_info*) struct_l_ptr)).line + (*((const struct line_info*) struct_l_ptr)).len - 1;
+    const char *line_r = (*((const struct line_info*) struct_r_ptr)).line + (*((const struct line_info*) struct_r_ptr)).len - 1;
 
     while(*line_l != '\0' && *line_r != '\0' && tolower(*line_l) == tolower(*line_r) ||
      (ispunct(*line_l) || isspace(*line_l)) || (ispunct(*line_r) || isspace(*line_r)))
@@ -137,16 +133,16 @@ int line_cmp_from_end(const void *struct_l_ptr, const void *struct_r_ptr)
 
 }
 
-void fprint_poem(const struct line_info **poem, FILE *stream)
+void fprint_poem(const struct line_info *poem, FILE *stream)
 {
     assert(poem != NULL);
     assert(stream != NULL);
 
     size_t lines_printed = 0;
 
-    while((*(poem + lines_printed))->line != NULL)
+    while((*(poem + lines_printed)).line != NULL)
     {
-        fputs((*(poem + lines_printed))->line, stream);
+        fputs((*(poem + lines_printed)).line, stream);
         putc('\n', stream);
 
         ++lines_printed;
@@ -161,30 +157,32 @@ size_t get_file_size(FILE *stream)
 
     size_t ans = 0;
 
-    fseek(stream, 0, SEEK_END);
+    assert(!fseek(stream, 0, SEEK_END));   //fseek returns zero upon success and non-zero otherwise
     ans = ftell(stream);
 
-    fseek(stream, 0, SEEK_SET);
+    assert(!fseek(stream, 0, SEEK_SET));
 
     return ans;
 }
 
-struct line_info** copy_struct_array(struct line_info **lines, size_t n_lines)
+struct line_info* copy_struct_array(struct line_info *lines, size_t n_lines)
 {
     assert(lines != NULL);
     assert(n_lines != 0);
 
-    struct line_info **ans = (struct line_info**) calloc(n_lines, sizeof(struct line_info*));
+    struct line_info *ans = (struct line_info*) calloc(n_lines, sizeof(struct line_info));
+    assert(ans != NULL);
 
     for (size_t lines_copied = 0; lines_copied < n_lines; ++lines_copied)
     {
-        *(ans + lines_copied) = *(lines + lines_copied);
+        ans[lines_copied].line = lines[lines_copied].line;
+        ans[lines_copied].len = lines[lines_copied].len;
     }
 
     return ans;
 }
 
-void byte_swap(void *a, void *b, size_t size)
+void byte_swap(void *a, void *b, size_t size) // smart byte swap
 {
     assert(a != NULL);
     assert(b != NULL);
@@ -207,25 +205,25 @@ void my_qsort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, co
     assert(ptr != NULL);
     assert(cmp != NULL);
 
-    void *low = ptr, *high = ptr + (count - 1)*size;
+    void *low = ptr, *high = (char*)ptr + (count - 1)*size;
 
     if(low < high)
     {
         void *pivot = high;
 
-        void *l = low - 1*size;
+        void *l = (char*)low - size;
 
-        for(void *r = low; r < high; r += 1*size)
+        for(void *r = low; r < high; r = (char*)r + size)
         {
             if(cmp(r, pivot) <= 0)
             {
-                l += 1*size;
+                l = (char*)l + size;
 
                 byte_swap(l, r, size);
             }
         }
 
-        l += 1*size;
+        l = (char*)l + size;
 
         byte_swap(l, high, size);
 
@@ -235,7 +233,7 @@ void my_qsort(void *ptr, size_t count, size_t size, int (*cmp)(const void *a, co
         if (low < high && count > 1)
         {
             my_qsort(ptr, ((char*)point - (char*)low)/size, size, cmp);
-            my_qsort(ptr + count*size - ((char*)high - (char*)point), ((char*)high - (char*)point)/size, size, cmp);
+            my_qsort((char*)ptr + count*size - ((char*)high - (char*)point), ((char*)high - (char*)point)/size, size, cmp);
         }
     }
 }
