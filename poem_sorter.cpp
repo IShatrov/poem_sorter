@@ -26,10 +26,10 @@ size_t count_chr_in_str(char chr, const char *str)
     while (*(str + chars_checked) != '\0')
     {
         if (*(str + chars_checked) == chr) ++ans;
-                                                                        //to do:
-        ++chars_checked;                                                //1. one io func
-    }                                                                   //2. smart byte swap
-                                                                        //3. check for empty lines
+
+        ++chars_checked;
+    }
+
     return ans;
 }
 
@@ -43,33 +43,40 @@ size_t split_poem(char *text, struct line_info **dest)
     *dest = (struct line_info*) realloc(*dest, n_lines * sizeof(struct line_info));
     assert(*dest != NULL);
 
-    (*dest)[0].line = text + 1;
+    size_t lines_found = 0, chr = 1;
 
-    size_t lines_found = 1, chr = 1; //have to start from 1 because text starts from \0
-    const char *prev_line = text;
+    char done = 0, is_line_empty = 0;
 
-    while (*(text + chr) != '\0')
+    do
     {
-        if (*(text + chr) == '\n')
+        (*dest)[lines_found].line = text + chr;
+
+        while(*(text + chr) != '\n')
         {
-            (*dest)[lines_found].line = text + chr + 1;
-            (*dest)[lines_found - 1].len = (text + chr) - prev_line - 1;
-            prev_line = text + chr;
+            ++chr;
 
-            *(text + chr) = '\0';
+            if(*(text + chr) == '\0')
+            {
+                done = 1;
 
-            ++lines_found;
+                break;
+            }
         }
 
+        *(text + chr) = '\0';
+
+        (*dest)[lines_found].len = text + chr - (*dest)[lines_found].line;
+
+        ++lines_found;
         ++chr;
+
     }
+    while (!done);
 
-    (*dest)[lines_found - 1].len = (text + chr) - prev_line - 1;
+    (*dest)[lines_found].line = NULL;
+    (*dest)[lines_found].len = -1;
 
-    (*dest)[n_lines - 1].line = NULL;
-    (*dest)[n_lines - 1].len = -1;
-
-    return n_lines;
+    return lines_found + 1;
 }
 
 int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr)
@@ -80,7 +87,7 @@ int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr)
     const char *line_l = (*((const struct line_info*) struct_l_ptr)).line;
     const char *line_r = (*((const struct line_info*) struct_r_ptr)).line;
 
-    while(*line_l != '\0' && *line_r != '\0' && tolower(*line_l) == tolower(*line_r) ||
+    while((*line_l != '\0' && *line_r != '\0' && tolower(*line_l) == tolower(*line_r)) ||
      (ispunct(*line_l) || isspace(*line_l)) || (ispunct(*line_r) || isspace(*line_r)))
     {
 
@@ -111,7 +118,7 @@ int line_cmp_from_end(const void *struct_l_ptr, const void *struct_r_ptr)
     const char *line_l = (*((const struct line_info*) struct_l_ptr)).line + (*((const struct line_info*) struct_l_ptr)).len - 1;
     const char *line_r = (*((const struct line_info*) struct_r_ptr)).line + (*((const struct line_info*) struct_r_ptr)).len - 1;
 
-    while(*line_l != '\0' && *line_r != '\0' && tolower(*line_l) == tolower(*line_r) ||
+    while((*line_l != '\0' && *line_r != '\0' && tolower(*line_l) == tolower(*line_r)) ||
      (ispunct(*line_l) || isspace(*line_l)) || (ispunct(*line_r) || isspace(*line_r)))
     {
 
@@ -193,8 +200,6 @@ void byte_swap(void *a, void *b, size_t size)
     assert(a != NULL);
     assert(b != NULL);
     assert(size != 0);
-
-    size_t n_doubles = 0, n_ints = 0, n_bytes = 0;
 
     while(size >= sizeof(double))
     {

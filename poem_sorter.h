@@ -42,6 +42,7 @@ int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr);
 //! @brief Compares strings stored in line_info structs lexicographically starting from the ends of the strings. Case insensitive. Ignores punctuation.
 int line_cmp_from_end(const void *struct_l_ptr, const void *struct_r_ptr);
 
+//
 //! @param[in] poem Array of line_info structs.
 //! @param[in] stream File to print strings to.
 //! @brief Prints strings from poem to stream.

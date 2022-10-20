@@ -17,6 +17,13 @@ int main(int argc, const char *argv[])
     struct line_info *lines = NULL;
     size_t n_lines = split_poem(text, &lines);
 
+//    for(int i = 0; i < n_lines; i++)
+//    {
+//        printf("%s", (lines[i]).line);
+//        putchar('\n');
+//    }
+    //fprint_poem(lines, stdout, n_lines);
+
     struct line_info *sorted_lines = copy_struct_array(lines, n_lines);
 
     my_qsort(sorted_lines, n_lines - 1, sizeof(struct line_info), &line_cmp);
