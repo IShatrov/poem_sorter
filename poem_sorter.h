@@ -42,7 +42,6 @@ int line_cmp(const void *struct_l_ptr, const void *struct_r_ptr);
 //! @brief Compares strings stored in line_info structs lexicographically starting from the ends of the strings. Case insensitive. Ignores punctuation.
 int line_cmp_from_end(const void *struct_l_ptr, const void *struct_r_ptr);
 
-//
 //! @param[in] poem Array of line_info structs.
 //! @param[in] stream File to print strings to.
 //! @brief Prints strings from poem to stream.
@@ -53,7 +52,6 @@ void fprint_poem(const struct line_info *poem, FILE *stream);
 //! @brief Gets amount of characters in stream.
 size_t get_file_size(FILE *stream);
 
-//
 //! @param[in] lines Pointer Array of line_info structs.
 //! @param[in] n_lines Amount of elements in lines.
 //! @return Returns pointer to copy of lines.
