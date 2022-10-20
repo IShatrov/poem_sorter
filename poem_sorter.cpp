@@ -46,9 +46,20 @@ size_t split_poem(char *text, struct line_info **dest)
     size_t lines_found = 0, chr = 1;
 
     char done = 0, is_line_empty = 0;
+    char *prev_line = text + 1;
 
     do
     {
+        while(*(text + chr) == ' ' || *(text + chr) == '\t') ++chr; //check if line is empty
+        if(*(text + chr) == '\n')
+        {
+            ++chr;
+
+            prev_line = text + chr;
+
+            continue;
+        }
+
         (*dest)[lines_found].line = text + chr;
 
         while(*(text + chr) != '\n')
@@ -65,11 +76,11 @@ size_t split_poem(char *text, struct line_info **dest)
 
         *(text + chr) = '\0';
 
-        (*dest)[lines_found].len = text + chr - (*dest)[lines_found].line;
+        (*dest)[lines_found].len = text + chr - prev_line;
+        prev_line = text + chr + 1;
 
         ++lines_found;
         ++chr;
-
     }
     while (!done);
 
