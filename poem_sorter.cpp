@@ -50,14 +50,13 @@ size_t split_poem(char *text, struct line_info **dest)
 
     do
     {
-        while(*(text + chr) == ' ' || *(text + chr) == '\t') ++chr; //check if line is empty
-        if(*(text + chr) == '\n')
+        while(isspace(*(text + chr))) //check if line is empty
         {
+            *(text + chr) = '\0';
+
+            ++prev_line;
+
             ++chr;
-
-            prev_line = text + chr;
-
-            continue;
         }
 
         (*dest)[lines_found].line = text + chr;
@@ -173,6 +172,19 @@ void fprint_poem(const struct line_info *poem, FILE *stream)
 
     return;
 }
+
+//size_t get_file_size(FILE *stream)
+//{
+//    assert(stream != NULL);
+//
+//    int file_descr = fileno(stream);
+//
+//    struct stat file_info;
+//
+//    assert(!fstat(file_descr, &file_info));
+//
+//    return file_info.st_size;
+//}
 
 size_t get_file_size(FILE *stream)
 {
