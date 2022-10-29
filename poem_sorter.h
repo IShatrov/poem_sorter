@@ -14,6 +14,17 @@ struct line_info
     int len;
 };
 
+
+//! @param[in] poem_filename Pointer to string.
+//! @param[in] destination_filename Pointer to string.
+//! @param[in] argc Amount of commands line arguments.
+//! @param[in] argv Command line arguments.
+//! @param[out] poem_filename
+//! @param[out] destination_filename
+//! @brief Changes poem and destination filenames to command line arguments if recieved.
+void get_cmd_line_args(const char **poem_filename, const char **destination_filename,
+    int argc, const char **argv);
+
 //! @param[in] stream File to read from.
 //! @return Returns pointer to char array.
 //! @brief Reads text from stream and stores it as char array. First character in array is \0.

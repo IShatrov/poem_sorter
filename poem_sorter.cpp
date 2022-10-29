@@ -1,5 +1,17 @@
 #include "poem_sorter.h"
 
+void get_cmd_line_args(const char **poem_filename, const char **destination_filename,
+    int argc, const char **argv)
+{
+    assert(poem_filename);
+    assert(destination_filename);
+
+    if (argc > 1) *poem_filename = argv[1];
+    if (argc > 2) *destination_filename = argv[2];
+
+    return;
+}
+
 char* read_poem(FILE *stream)
 {
     assert(stream != NULL);
@@ -45,12 +57,12 @@ size_t split_poem(char *text, struct line_info **dest)
 
     size_t lines_found = 0, chr = 1;
 
-    char done = 0, is_line_empty = 0;
+    char done = 0;
     char *prev_line = text + 1;
 
     do
     {
-        while(isspace(*(text + chr))) //check if line is empty
+        while(isspace(*(text + chr))) //ignore empty lines and leading white-spaces
         {
             *(text + chr) = '\0';
 

@@ -5,8 +5,7 @@ int main(int argc, const char *argv[])
     const char *poem_filename = "poem.txt";
     const char *destination_filename = "dest.txt";
 
-    if (argc > 1) poem_filename = argv[1];
-    if (argc > 2) destination_filename = argv[2];
+    get_cmd_line_args(&poem_filename, &destination_filename, argc, argv);
 
     FILE *poem = NULL;
     poem = fopen(poem_filename, "r");
@@ -40,6 +39,7 @@ int main(int argc, const char *argv[])
 
     free(text);
     free(lines);
+    free(sorted_lines);
 
     return 0;
 }
